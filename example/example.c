@@ -1,4 +1,4 @@
-#include "../xtal.h"
+#include "../src/xtal.h"
 
 TEST(test_one) {
 	ASSERT_EQUAL_STR("bello", "bello");
@@ -12,9 +12,9 @@ TEST(test_three) {
 	ASSERT_TRUE(10 > 3);
 }
 
-//FAIL TEST
+//THIS TEST WILL FAIL
 TEST(test_four) {
-	ASSERT_EQUAL_STR("ciao", "cix");
+	ASSERT_EQUAL_STR("Hello", "Hell");
 }
 
 int main() {
