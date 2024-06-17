@@ -11,7 +11,7 @@ Take a look at the examples.
 
 TEST(test_name) {
     //Your code
-    assert_somethinh(args...);
+    assert_something(args...);
 }
 
 int main() {
