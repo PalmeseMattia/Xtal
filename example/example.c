@@ -1,20 +1,20 @@
 #include "../src/xtal.h"
 
 TEST(test_one) {
-	ASSERT_EQUAL_STR("bello", "bello");
+	assert_equal_str("bello", "bello");
 }
 
 TEST(test_two) {
-	ASSERT_EQUAL_INT(10, 10);
+	assert_equal_int(10, 10);
 }
 
 TEST(test_three) {
-	ASSERT_TRUE(10 > 3);
+	assert_true(10 > 3);
 }
 
 //THIS TEST WILL FAIL
 TEST(test_four) {
-	ASSERT_EQUAL_STR("Hello", "Hell");
+	assert_equal_str("Hello", "Hell");
 }
 
 int main() {
