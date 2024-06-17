@@ -1,4 +1,4 @@
-mi# Xtal
+# Xtal
 
 A single file C unit test tool (a lot of words...).
 Create your own library or just compile your test file with xtal.c.
