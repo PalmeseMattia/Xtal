@@ -1,22 +1,24 @@
 #include "xtal.h"
 
-static t_testregister reg = {.test_count = 0, .register_size = 0, .tests = NULL};
+static int	test_count = 0;
+static int	register_size = 0;
+static testcase	*tests = NULL;
 
 void register_test(testcase test)
 {
-	if (reg.test_count >= (reg.register_size - 1)) {
-		reg.tests = realloc(reg.tests, sizeof(testcase) * (reg.register_size += 10));
+	if (test_count >= (register_size - 1)) {
+		tests = realloc(tests, sizeof(testcase) * (register_size += BUFFER_SIZE));
 	}
-	*(reg.tests + reg.test_count) = test;
-	reg.test_count++;
+	*(tests + test_count) = test;
+	test_count++;
 }
 
 void run_tests()
 {
-	for (int i = 0; i < reg.test_count; i++)
-		(*(reg.tests + i))();
-	free(reg.tests);
-	reg.tests = NULL;
+	for (int i = 0; i < test_count; i++)
+		(*(tests + i))();
+	free(tests);
+	tests = NULL;
 }
 
 void assert_equal_int(int expected, int actual)
@@ -39,7 +41,6 @@ void assert_equal_str(char *expected, char *actual)
 	}
 	printf("Test Passed \u2713\n");
 }
-
 
 void assert_true(int condition)
 {
