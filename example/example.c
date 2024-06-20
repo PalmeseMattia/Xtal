@@ -9,7 +9,9 @@ TEST(test_two) {
 }
 
 TEST(test_three) {
-	assert_true(10 > 3);
+	int *p = NULL;
+	*p = 42;
+	assert_equal_int(42, *p);
 }
 
 //THIS TEST WILL FAIL
