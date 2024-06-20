@@ -32,13 +32,13 @@ void run_tests()
 			waitpid(pid, &status, 0);
 			if (WIFSIGNALED(status)) {
 				if (WTERMSIG(status) == SIGSEGV)
-					printf("Test failed due to segmentation fault\n");
+					printf("%s\n\n", SEG_FAULT);
 				else
-					printf("Test failed with signal %d and status %d\n", WTERMSIG(status), WEXITSTATUS(status));
+					printf("%sTest failed with signal %d and status %d %s%s\n\n", RED, WTERMSIG(status), WEXITSTATUS(status), CROSS, NRM);
 			} else if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-				printf("Test passed\n");
+				printf("%s\n\n", TEST_PASSED);
 			} else {
-				printf("Test failed with status %d\n", WEXITSTATUS(status));
+				printf("%sTest failed with status %d %s%s\n\n", RED,WEXITSTATUS(status), CROSS, NRM);
 			}
 		}
 	}

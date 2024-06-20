@@ -14,6 +14,14 @@
     __attribute__((constructor)) void register_##name() { register_test(name); } \
     void name()
 
+# define GREEN "\x1B[32m"
+# define RED "\x1B[31m"
+# define NRM "\x1B[0m"
+# define CHECK "\u2713"
+# define CROSS "\u2715"
+# define TEST_PASSED GREEN "Test passed " CHECK NRM
+# define SEG_FAULT RED "Test failed due to segmentation fault " CROSS NRM
+
 typedef void (*testcase)();
 
 void register_test(testcase test);
