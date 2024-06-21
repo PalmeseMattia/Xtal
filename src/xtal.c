@@ -15,39 +15,33 @@ void register_test(testcase test)
 
 void run_tests()
 {
-	for (int i = 0; i < test_count; i++)
-		(*(tests + i))();
-	free(tests);
-	tests = NULL;
-}
+	int	pid;
+	int	status;
 
-void assert_equal_int(int expected, int actual)
-{
-	if (expected != actual) {
-		fprintf(stderr, "Assertion failed: expected %d, got %d\n", expected, actual); \
-		exit(EXIT_FAILURE); \
-	} else {
-		printf("Test Passed \u2713\n");
-	}
-}
-
-void assert_equal_str(char *expected, char *actual)
-{
-	for (int i = 0; *(expected + i) ;i++) {
-		if (*(expected + i) != *(actual + i) || !(actual + i)) {
-			fprintf(stderr, "Assertion failed: Strings differ at index %d.\nExpected \"%s\", got \"%s\"\n", i, expected, actual);
-			exit(EXIT_FAILURE);
+	for (int i = 0; i < test_count; i++) {
+		if ((pid = fork()) < 0) {
+			perror("Fork failed");
+			exit(1);
+		}
+		if (pid == 0) {
+			(*(tests + i))();
+			exit(0);
+		}
+		else {
+			printf("Running test %d\n", i + 1);
+			waitpid(pid, &status, 0);
+			if (WIFSIGNALED(status)) {
+				if (WTERMSIG(status) == SIGSEGV)
+					PRINT_SEG_FAULT;
+				else
+					PRINT_FAILED_SIG;
+			}
+			else if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+				PRINT_PASSED;
+			else
+				PRINT_FAILED;
 		}
 	}
-	printf("Test Passed \u2713\n");
-}
-
-void assert_true(int condition)
-{
-	if (!condition) {
-		fprintf(stderr, "Assertion failed: Condition is false\n");
-		exit(EXIT_FAILURE);
-	} else {
-		printf("Test Passed \u2713\n");
-	}
+	free(tests);
+	tests = NULL;
 }
