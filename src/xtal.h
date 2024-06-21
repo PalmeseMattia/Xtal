@@ -28,8 +28,8 @@ void run_tests();
 	}
 
 # define ASSERT_EQUAL_STR(expected, actual) \
-	for (int i = 0; *(expected + i) ;i++) { \
-		if (*(expected + i) != *(actual + i) || !(actual + i)) { \
+	for (int i = 0; expected[i] ;i++) { \
+		if (expected[i] != actual[i] || !actual[i]) { \
 			fprintf(stderr, "Assertion failed: Strings differ at index %d.\nExpected \"%s\", got \"%s\"\n", i, expected, actual); \
 			exit(EXIT_FAILURE); \
 		} \
