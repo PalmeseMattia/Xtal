@@ -1,28 +1,39 @@
 # Xtal
 
-A single file C unit test tool.
+Simple and automatic single header C unit testing tool.
 
-Create your own library or just compile your test file with xtal.c.
-I know, unity is quite good, but with xtal you don't need to explicitly run every test.
-
-Take a look at the examples.
+Take a look at the example.
 
 ### Syntax:
 ```c
-#include "xtal.h"
+#include "../src/xtal.h"
 
-TEST(test_name) {
-    //Your code
-    assert_something(args...);
+TEST(test_one) {
+	ASSERT_EQUAL_STR("bello", "bello");
+}
+
+TEST(test_two) {
+	ASSERT_EQUAL_INT(10, 10);
+}
+
+//SEG FAULT
+TEST(test_three) {
+	int *p = NULL;
+	*p = 42;
+	ASSERT_EQUAL_INT(42, *p);
+}
+
+//THIS TEST WILL FAIL
+TEST(test_four) {
+	ASSERT_EQUAL_STR("Hello", "Hell");
 }
 
 int main() {
-    run_tests();
+	run_tests();
+	return 0;
 }
 ```
 
 ### Basic Usage:
-![Alt text](resources/result.png)
+![Alt text](resources/tests.png)
 
-### Make a library
-![Alt text](resources/lib.png)
