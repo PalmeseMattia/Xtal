@@ -37,3 +37,5 @@ int main() {
 ### Basic Usage:
 ![Alt text](resources/tests.png)
 
+### Compatibility
+This tool uses the \_\_attribute\_\_((constructor)) extension, so make sure that your compiler supports it.
