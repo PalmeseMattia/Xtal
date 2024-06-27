@@ -1,4 +1,4 @@
-#include "../src/xtal.h"
+#include "../xtal.h"
 
 TEST(test_one) {
 	ASSERT_EQUAL_STR("bello", "bello");
