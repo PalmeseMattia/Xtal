@@ -6,7 +6,7 @@ Take a look at the example.
 
 ### Syntax:
 ```c
-#include "../src/xtal.h"
+#include "../xtal.h"
 
 TEST(test_one) {
 	ASSERT_EQUAL_STR("bello", "bello");
