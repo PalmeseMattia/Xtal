@@ -11,13 +11,15 @@
 # define BUFFER_SIZE 10
 # define TEST(name) \
     void name(); \
-    __attribute__((constructor)) void register_##name() { register_test(name); } \
+    __attribute__((constructor)) void register_##name() { register_test(#name, name); } \
     void name()
+
 /*
  * PRINT UTILITIES 
  */
 # define GREEN "\x1B[32m"
 # define RED "\x1B[31m"
+# define YELLOW "\x1B[033m"
 # define NRM "\x1B[0m"
 # define CHECK "\u2713"
 # define CROSS "\u2715"
@@ -28,74 +30,91 @@
 
 typedef void (*testcase)();
 
-static int	test_count = 0;
-static int	register_size = 0;
-static testcase	*tests = NULL;
+typedef struct {
+    const char *name;
+    testcase function;
+} test_t;
 
+static int test_count = 0;
+static int register_size = 0;
+static test_t *tests = NULL;
 
-void register_test(testcase test)
+void register_test(const char *name, testcase function)
 {
-	if (test_count >= (register_size - 1)) {
-		tests = realloc(tests, sizeof(testcase) * (register_size += BUFFER_SIZE));
-	}
-	*(tests + test_count) = test;
-	test_count++;
+    if (test_count >= (register_size - 1)) {
+        tests = realloc(tests, sizeof(test_t) * (register_size += BUFFER_SIZE));
+    }
+    tests[test_count].name = name;
+    tests[test_count].function = function;
+    test_count++;
 }
 
 void run_tests()
 {
-	int	pid;
-	int	status;
+    int pid;
+    int status;
 
-	for (int i = 0; i < test_count; i++) {
-		if ((pid = fork()) < 0) {
-			perror("Fork failed");
-			exit(1);
-		}
-		if (pid == 0) {
-			(*(tests + i))();
-			exit(0);
-		}
-		else {
-			printf("Running test %d\n", i + 1);
-			waitpid(pid, &status, 0);
-			if (WIFSIGNALED(status)) {
-				if (WTERMSIG(status) == SIGSEGV)
-					PRINT_SEG_FAULT;
-				else
-					PRINT_FAILED_SIG;
-			}
-			else if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
-				PRINT_PASSED;
-			else
-				PRINT_FAILED;
-		}
-	}
-	free(tests);
-	tests = NULL;
+    for (int i = 0; i < test_count; i++) {
+        if ((pid = fork()) < 0) {
+            perror("Fork failed");
+            exit(1);
+        }
+        if (pid == 0) {
+            tests[i].function();
+            exit(0);
+        }
+        else {
+            printf("%sTEST %d: %s%s\n", YELLOW, i + 1, tests[i].name, NRM);
+            waitpid(pid, &status, 0);
+            if (WIFSIGNALED(status)) {
+                if (WTERMSIG(status) == SIGSEGV)
+                    PRINT_SEG_FAULT;
+                else
+                    PRINT_FAILED_SIG;
+            }
+            else if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+                PRINT_PASSED;
+            else
+                PRINT_FAILED;
+        }
+    }
+    free(tests);
+    tests = NULL;
 }
 
 /*
  * ASSERTIONS
  */
 # define ASSERT_EQUAL_INT(expected, actual) \
-	if (expected != actual) { \
-		fprintf(stderr, "Assertion failed: expected %d, got %d\n", expected, actual); \
-		exit(EXIT_FAILURE); \
-	}
+    if (expected != actual) { \
+        fprintf(stderr, "Assertion failed: expected %d, got %d\n", expected, actual); \
+        exit(EXIT_FAILURE); \
+    }
 
 # define ASSERT_EQUAL_STR(expected, actual) \
-	for (int i = 0; expected[i] ;i++) { \
-		if (expected[i] != actual[i] || !actual[i]) { \
-			fprintf(stderr, "Assertion failed: Strings differ at index %d.\nExpected \"%s\", got \"%s\"\n", i, expected, actual); \
-			exit(EXIT_FAILURE); \
-		} \
-	} \
+    for (int i = 0; expected[i]; i++) { \
+        if (expected[i] != actual[i] || !actual[i]) { \
+            fprintf(stderr, "Assertion failed: Strings differ at index %d.\nExpected \"%s\", got \"%s\"\n", i, expected, actual); \
+            exit(EXIT_FAILURE); \
+        } \
+    }
 
 # define ASSERT_TRUE(condition) \
-	if (!condition) { \
-		fprintf(stderr, "Assertion failed: Condition is false\n"); \
-		exit(EXIT_FAILURE); \
-	}
+    if (!condition) { \
+        fprintf(stderr, "Assertion failed: Condition is false\n"); \
+        exit(EXIT_FAILURE); \
+    }
+
+# define ASSERT_NOT_NULL(stuff) \
+    if (stuff == NULL) { \
+        fprintf(stderr, "Assertion failed: Memory points to null\n"); \
+        exit(EXIT_FAILURE); \
+    }
+
+# define ASSERT_NULL(stuff) \
+    if (stuff != NULL) { \
+        fprintf(stderr, "Assertion failed: Memory do not points to null\n"); \
+        exit(EXIT_FAILURE); \
+    }
 
 #endif
