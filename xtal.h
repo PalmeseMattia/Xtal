@@ -20,13 +20,16 @@
 # define GREEN "\x1B[32m"
 # define RED "\x1B[31m"
 # define YELLOW "\x1B[033m"
-# define NRM "\x1B[0m"
+# define BLUE "\e[0;35m"
+# define RESET "\x1B[0m"
 # define CHECK "\u2713"
 # define CROSS "\u2715"
-# define PRINT_PASSED printf("%sTest passed %s%s\n\n", GREEN, CHECK, NRM)
-# define PRINT_FAILED_SIG printf("%sTest failed with signal %d and status %d %s%s\n\n", RED, WTERMSIG(status), WEXITSTATUS(status), CROSS, NRM)
-# define PRINT_SEG_FAULT printf("%sTest failed due to segmentation fault %s%s\n\n", RED, CROSS, NRM)
-# define PRINT_FAILED printf("%sTest failed with status %d %s%s\n\n", RED, WEXITSTATUS(status), CROSS, NRM)
+# define PRINT_PASSED printf("%sTest passed %s%s\n\n", GREEN, CHECK, RESET)
+# define PRINT_FAILED_SIG printf("%sTest failed with signal %d and status %d %s%s\n\n", RED, WTERMSIG(status), WEXITSTATUS(status), CROSS, RESET)
+# define PRINT_SEG_FAULT printf("%sTest failed due to segmentation fault %s%s\n\n", RED, CROSS, RESET)
+# define PRINT_FAILED printf("%sTest failed with status %d %s%s\n\n", RED, WEXITSTATUS(status), CROSS, RESET)
+# define PRINT_LINE printf("__________________________\n");
+
 
 typedef void (*testcase)();
 
@@ -37,12 +40,14 @@ typedef struct {
 
 static int test_count = 0;
 static int register_size = 0;
+static int test_passed = 0;
+static int test_failed = 0;
 static test_t *tests = NULL;
 
 void register_test(const char *name, testcase function)
 {
     if (test_count >= (register_size - 1)) {
-        tests = realloc(tests, sizeof(test_t) * (register_size += BUFFER_SIZE));
+        tests = (test_t *)realloc(tests, sizeof(test_t) * (register_size += BUFFER_SIZE));
     }
     tests[test_count].name = name;
     tests[test_count].function = function;
@@ -64,20 +69,28 @@ void run_tests()
             exit(0);
         }
         else {
-            printf("%sTEST %d: %s%s\n", YELLOW, i + 1, tests[i].name, NRM);
+			printf(BLUE "=== TEST %d: %s ===%s\n" , i + 1, tests[i].name, RESET);
             waitpid(pid, &status, 0);
             if (WIFSIGNALED(status)) {
                 if (WTERMSIG(status) == SIGSEGV)
                     PRINT_SEG_FAULT;
                 else
                     PRINT_FAILED_SIG;
+				test_failed++;
             }
-            else if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+            else if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
                 PRINT_PASSED;
-            else
+				test_passed++;
+			}
+            else {
                 PRINT_FAILED;
+				test_failed++;
+			}
         }
     }
+	printf("\n=== Test Summary ===\n");
+	printf(GREEN "Passed: %d\n" RESET, test_passed);
+	printf(RED "Failed: %d\n" RESET, test_failed);
     free(tests);
     tests = NULL;
 }
