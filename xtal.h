@@ -118,6 +118,12 @@ void run_tests()
         exit(EXIT_FAILURE); \
     }
 
+# define ASSERT_FALSE(condition) \
+    if (condition) { \
+        fprintf(stderr, "Assertion failed: Condition is true\n"); \
+        exit(EXIT_FAILURE); \
+    }
+
 # define ASSERT_NOT_NULL(stuff) \
     if (stuff == NULL) { \
         fprintf(stderr, "Assertion failed: Memory points to null\n"); \
